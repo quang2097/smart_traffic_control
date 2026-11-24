@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<additional>
+  <tlLogic id="center" type="static" programID="startup" offset="0">
+    <phase duration="1000000" state="rrrr"/>
+  </tlLogic>
+</additional>

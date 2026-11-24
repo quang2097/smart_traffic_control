@@ -1,5 +1,5 @@
-// Unused tooling skeleton. Runtime schema is maintained by sql/001_auth.sql
-// and sql/002_traffic.sql via npm run db:migrate, using node-postgres.
+// Unused tooling skeleton. Runtime schema is maintained by sql/*.sql
+// via npm run db:migrate, using node-postgres.
 
 generator client {
   provider = "prisma-client"

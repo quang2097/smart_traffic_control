@@ -1,3 +1,4 @@
+import { embeddedRouter } from "./embedded.js";
 import { demoRouter } from "./demo.js";
 import express, {
   type Request,
@@ -462,6 +463,7 @@ app.post("/api/auth/reset-password", limiter, async (req, res) => {
 });
 app.use('/api/auth', recoveryRouter(sessionToken));
 app.use("/api/traffic", trafficRouter(sessionToken));
+app.use("/api/embedded", embeddedRouter(sessionToken));
 app.use('/api/cameras', cameraRouter(sessionToken));
 app.get("/api/health", async (_req, res) => {
   await pool.query("SELECT 1");

@@ -70,3 +70,7 @@ Configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM` and optional `SMTP_USER`/`SMTP_P
 Run `npm run build` in each directory and `npm test` in `backend`. Run `npm run test:integration` in `backend` against an initialized test database. Integration tests use randomly named records and clean up their own records. They cover authentication, OTP, password changes, both roles, traffic access, validation, saved plans, history and stale configuration conflicts.
 
 Build both projects for production. Serve `frontend/dist` with SPA fallback and reverse proxy `/api` to the backend on the same public origin. Run `npm start` in `backend`. Configure production database credentials, SMTP and an HTTPS `APP_URL`. Replace Compose's development password. Configure proxy trust for the deployment topology, use a shared rate limiter for multiple replicas, and schedule cleanup of expired authentication records.
+
+## ESP32 / Wokwi controller
+
+The traffic dashboard now has an admin **ESP32 · Bộ điều khiển Wokwi** panel for device provisioning and immutable next-phase durations. Run `npm run db:migrate` in `backend` after updating. Firmware, full six-LED/resistor wiring, strict monotonic timer tests, runtime Serial connection settings and Wokwi instructions are in [Embedded](../Embedded/README.md). The future RL adapter can queue timings through the same API. This is simulation hardware; device reports are shown separately from the server-only cyclic signal model.

@@ -7,6 +7,7 @@ try {
     await pool.query(await readFile("sql/001_auth.sql", "utf8"));
     await pool.query(await readFile("sql/002_traffic.sql", "utf8"));
     await pool.query(await readFile("sql/003_recovery_requests.sql", "utf8"));
+    await pool.query(await readFile("sql/004_embedded.sql", "utf8"));
     console.log("Traffic control and authentication tables are ready.");
   } else if (process.argv[2] === "check") {
     const { SEED_EMAIL: email, SEED_PASSWORD: password } = process.env;

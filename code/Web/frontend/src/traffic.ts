@@ -1,3 +1,4 @@
+import { mountEmbedded, stopEmbedded } from "./embedded";
 type Api = (path: string, body?: unknown) => Promise<any>;
 type Intersection = {
   id: string; name: string; location: string; mode: string; version: number;
@@ -5,7 +6,7 @@ type Intersection = {
   signals: { northSouth: string; eastWest: string; remaining: number | null };
 };
 let timer: ReturnType<typeof setInterval> | undefined;
-export function stopDashboard() { clearInterval(timer); }
+export function stopDashboard() { clearInterval(timer); stopEmbedded(); }
 const escape = (text: unknown) => String(text ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 const colors: Record<string, string> = { red: 'Đỏ', yellow: 'Vàng', green: 'Xanh' };
 const modes: Record<string, string> = { automatic: 'Chu kỳ tự động', all_red: 'Giữ đỏ toàn phần' };
@@ -90,6 +91,7 @@ export function mountDashboard(host: HTMLElement, role: 'admin' | 'user', api: A
     } catch (error) { report((error as Error).message, true); }
     finally { button.disabled = false; }
   });
+  if (role === 'admin') mountEmbedded(host, api);
   void load();
   timer = setInterval(() => { if (host.isConnected) void load(false); }, 2000);
 }

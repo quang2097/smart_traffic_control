@@ -1,0 +1,273 @@
+{
+  "version": 1,
+  "author": "Smart Traffic",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-devkit-c-v4",
+      "id": "esp",
+      "top": 30,
+      "left": 30,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-text",
+      "id": "labelNS",
+      "top": -30,
+      "left": 310,
+      "attrs": {
+        "text": "NORTH / SOUTH"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "NS_red",
+      "top": 20,
+      "left": 320,
+      "attrs": {
+        "color": "red",
+        "label": "NS red"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "R_NS_red",
+      "top": 43,
+      "left": 230,
+      "attrs": {
+        "value": "330"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "NS_yellow",
+      "top": 120,
+      "left": 320,
+      "attrs": {
+        "color": "yellow",
+        "label": "NS yellow"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "R_NS_yellow",
+      "top": 143,
+      "left": 230,
+      "attrs": {
+        "value": "330"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "NS_green",
+      "top": 220,
+      "left": 320,
+      "attrs": {
+        "color": "green",
+        "label": "NS green"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "R_NS_green",
+      "top": 243,
+      "left": 230,
+      "attrs": {
+        "value": "330"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "labelEW",
+      "top": -30,
+      "left": 530,
+      "attrs": {
+        "text": "EAST / WEST"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "EW_red",
+      "top": 20,
+      "left": 540,
+      "attrs": {
+        "color": "red",
+        "label": "EW red"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "R_EW_red",
+      "top": 43,
+      "left": 450,
+      "attrs": {
+        "value": "330"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "EW_yellow",
+      "top": 120,
+      "left": 540,
+      "attrs": {
+        "color": "yellow",
+        "label": "EW yellow"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "R_EW_yellow",
+      "top": 143,
+      "left": 450,
+      "attrs": {
+        "value": "330"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "EW_green",
+      "top": 220,
+      "left": 540,
+      "attrs": {
+        "color": "green",
+        "label": "EW green"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "R_EW_green",
+      "top": 243,
+      "left": 450,
+      "attrs": {
+        "value": "330"
+      }
+    }
+  ],
+  "connections": [
+    [
+      "esp:TX",
+      "$serialMonitor:RX",
+      "",
+      []
+    ],
+    [
+      "esp:RX",
+      "$serialMonitor:TX",
+      "",
+      []
+    ],
+    [
+      "esp:25",
+      "R_NS_red:1",
+      "red",
+      []
+    ],
+    [
+      "R_NS_red:2",
+      "NS_red:A",
+      "red",
+      []
+    ],
+    [
+      "NS_red:C",
+      "esp:GND.1",
+      "black",
+      []
+    ],
+    [
+      "esp:26",
+      "R_NS_yellow:1",
+      "yellow",
+      []
+    ],
+    [
+      "R_NS_yellow:2",
+      "NS_yellow:A",
+      "yellow",
+      []
+    ],
+    [
+      "NS_yellow:C",
+      "esp:GND.1",
+      "black",
+      []
+    ],
+    [
+      "esp:27",
+      "R_NS_green:1",
+      "green",
+      []
+    ],
+    [
+      "R_NS_green:2",
+      "NS_green:A",
+      "green",
+      []
+    ],
+    [
+      "NS_green:C",
+      "esp:GND.1",
+      "black",
+      []
+    ],
+    [
+      "esp:18",
+      "R_EW_red:1",
+      "red",
+      []
+    ],
+    [
+      "R_EW_red:2",
+      "EW_red:A",
+      "red",
+      []
+    ],
+    [
+      "EW_red:C",
+      "esp:GND.1",
+      "black",
+      []
+    ],
+    [
+      "esp:19",
+      "R_EW_yellow:1",
+      "yellow",
+      []
+    ],
+    [
+      "R_EW_yellow:2",
+      "EW_yellow:A",
+      "yellow",
+      []
+    ],
+    [
+      "EW_yellow:C",
+      "esp:GND.1",
+      "black",
+      []
+    ],
+    [
+      "esp:21",
+      "R_EW_green:1",
+      "green",
+      []
+    ],
+    [
+      "R_EW_green:2",
+      "EW_green:A",
+      "green",
+      []
+    ],
+    [
+      "EW_green:C",
+      "esp:GND.1",
+      "black",
+      []
+    ]
+  ],
+  "serialMonitor": {
+    "display": "always",
+    "newline": "lf",
+    "convertEol": true
+  }
+}
