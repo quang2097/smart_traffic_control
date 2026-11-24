@@ -21,6 +21,10 @@ Only `admin` and `user` are accepted by account creation, provisioning and the d
 
 Migration retains admins and converts legacy manager, employee, staff and customer accounts to users, preserving IDs, passwords and recovery records. Sessions for converted accounts are revoked. Cookies now use `traffic_session` and `traffic_otp`; everyone signs in again after upgrading. Both SQL files are repeatable and preserve existing intersection configurations.
 
+## Video and AI demo
+
+Web/Desktop can choose local files or defaults from the server library; Android offers server files only. Add defaults to `backend/demo-library/videos` and `backend/demo-library/models` (or set `AI_LIBRARY_DIR`). Open **Video & AI demo** after sign-in to run a YOLO classification `.pt` model on a local video, drag a crop region, set its model input resolution, and view live class overlays. A separate reinforcement learning tab is clearly marked under development and does not execute actions. Run `npm run ai:setup` in `backend` once. See [setup, usage, model compatibility and verification](AI_DEMO.md).
+
 ## Traffic dashboard
 
 Sign in as an admin to add a named intersection and its location. New intersections start with an all-red hold. Choose automatic mode, enter timing values, and save. Both roles can inspect signal colors, countdowns, plan timing and the latest 50 changes per intersection. Signal status is refreshed every two seconds. Background refresh leaves unsaved forms intact; if another admin changes a plan, reload before saving. A version conflict returns HTTP 409.

@@ -4,3 +4,15 @@ dist/
 .env.*
 !.env.example
 coverage/
+
+.venv/
+__pycache__/
+.runtime/
+artifacts/
+
+backend/demo-library/videos/*
+!backend/demo-library/videos/.gitkeep
+backend/demo-library/models/*
+!backend/demo-library/models/.gitkeep
+backend/demo-library/policies/*
+!backend/demo-library/policies/.gitkeep

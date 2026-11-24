@@ -14,7 +14,8 @@
     "test:smoke": "npm run build:ui && electron scripts/smoke.cjs --smoke-test",
     "test:use-cases": "npm run test:smoke",
     "test:camera-web": "npm --prefix ../Web/frontend run build && electron scripts/camera-web-smoke.cjs",
-    "test:camera-native": "npm run build:ui && electron scripts/camera-web-smoke.cjs --native-camera-test --smoke-test"
+    "test:camera-native": "npm run build:ui && electron scripts/camera-web-smoke.cjs --native-camera-test --smoke-test",
+    "test:ai": "npm run build:ui && electron scripts/ai-smoke.cjs --smoke-test"
   },
   "devDependencies": {
     "electron": "45.3.2",
@@ -23,9 +24,22 @@
   "build": {
     "appId": "com.smarttraffic.desktop",
     "productName": "Smart Traffic",
-    "directories": { "output": "release" },
-    "files": ["src/**/*.cjs", "!src/**/*.test.cjs", "ui/**/*", "package.json"],
-    "win": { "target": "nsis", "icon": "assets/icon.ico" },
-    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true }
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**/*.cjs",
+      "!src/**/*.test.cjs",
+      "ui/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }

@@ -8,11 +8,14 @@
     "build": "npm run sync && node ../scripts/build-android.mjs",
     "run": "npm run sync && cap run android",
     "test:smoke": "node scripts/smoke.mjs",
-    "test:camera": "node scripts/camera-smoke.mjs"
+    "test:camera": "node scripts/camera-smoke.mjs",
+    "test:ai": "node scripts/ai-smoke.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.6.2",
     "@capacitor/core": "8.6.2"
   },
-  "devDependencies": { "@capacitor/cli": "8.6.2" }
+  "devDependencies": {
+    "@capacitor/cli": "8.6.2"
+  }
 }

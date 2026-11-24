@@ -32,6 +32,8 @@ app.whenReady().then(async () => {
     const wait = expression => evaluate(`new Promise((resolve,reject)=>{const end=Date.now()+12000; const check=()=>{if(${expression})resolve(true);else if(Date.now()>end)reject(new Error('UI timeout: '+${JSON.stringify(expression)}));else setTimeout(check,50)};check()})`);
     await wait(`document.querySelector('#auth-form')`);
     await evaluate(`document.querySelector('#email').value=${JSON.stringify(details.email)};document.querySelector('#password').value=${JSON.stringify(details.password)};document.querySelector('#auth-form').requestSubmit()`);
+    await wait(`document.querySelector('[data-workspace=camera-observation]')`);
+    await evaluate(`document.querySelector('[data-workspace=camera-observation]').click()`);
     await wait(`document.querySelector('#camera-road')?.options.length===3`);
     assert.equal(await evaluate(`!!window.desktopTraffic`), native);
     await evaluate(`document.querySelector('#camera-road').value='hanoi-demo';document.querySelector('#camera-road').dispatchEvent(new Event('change'))`);

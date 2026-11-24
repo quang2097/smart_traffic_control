@@ -1,3 +1,4 @@
+import { demoRouter } from "./demo.js";
 import express, {
   type Request,
   type Response,
@@ -64,7 +65,7 @@ export const app = express();
 app.disable("x-powered-by");
 app.use(helmet());
 app.use(cors({ origin: [...origins], credentials: true }));
-app.use(express.json({ limit: "8kb" }));
+
 // The Vite frontend owns the login page during local development.
 if (!production) {
   app.get("/", (_req, res) => {
@@ -86,6 +87,8 @@ app.use("/api", (req, res, next) => {
   }
   next();
 });
+app.use("/api/demo", demoRouter(sessionToken));
+app.use(express.json({ limit: "8kb" }));
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 20,
@@ -465,6 +468,7 @@ app.get("/api/health", async (_req, res) => {
   res.json({ status: "ok" });
 });
 app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  if ((error as { type?: string })?.type === "entity.too.large") { res.status(413).json({ message: "Tệp hoặc khung hình vượt quá dung lượng cho phép." }); return; }
   if (error instanceof SyntaxError) {
     res.status(400).json({ message: "Dữ liệu không hợp lệ." });
     return;

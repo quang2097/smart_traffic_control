@@ -1,17 +1,21 @@
 import { Capacitor, CapacitorHttp, CapacitorCookies, registerPlugin } from '@capacitor/core';
-const TrafficCamera = registerPlugin<{ setBackend(options: { base: string }): Promise<void>; stopMedia(): Promise<void> }>('TrafficCamera');
+const TrafficCamera = registerPlugin<{ setBackend(options: { base: string }): Promise<void>; stopMedia(): Promise<void>; saveDemoFile(options: { name: string; data: string }): Promise<void> }>('TrafficCamera');
 
 type Result = { status: number; data: any };
 declare global {
   interface Window {
     desktopTraffic?: {
       request: (base: string, path: string, body?: unknown) => Promise<Result>;
+      aiDemoVersion?: number;
+      onAiPause?: (callback: () => void) => () => void;
       clearSession: () => Promise<void>;
       stopCameraMedia: () => Promise<void>;
     };
   }
 }
+export const androidClient = Capacitor.isNativePlatform() && !window.desktopTraffic;
 export const nativeClient = Boolean(window.desktopTraffic) || Capacitor.isNativePlatform();
+export async function saveAndroidDemoFile(name: string, data: string) { await TrafficCamera.saveDemoFile({ name, data }); }
 export async function cancelCameraMedia() {
   if (window.desktopTraffic) await window.desktopTraffic.stopCameraMedia();
   else if (Capacitor.isNativePlatform()) await TrafficCamera.stopMedia();
@@ -39,13 +43,14 @@ export async function saveBackend(value: string) {
 export async function request(path: string, body?: unknown): Promise<Result> {
   if (window.desktopTraffic) return window.desktopTraffic.request(backendAddress(), path, body);
   if (Capacitor.isNativePlatform()) {
+    if (path === '/api/demo/model') throw new Error('Android chỉ nạp model từ thư viện máy chủ.');
     await TrafficCamera.setBackend({ base: normalizeBackend(backendAddress()) });
     const result = await CapacitorHttp.request({
       url: `${backendAddress()}${path}`,
       method: body === undefined ? 'GET' : 'POST',
       headers: body === undefined ? {} : { 'Content-Type': 'application/json' },
       ...(body === undefined ? {} : { data: body }),
-      responseType: 'json', connectTimeout: 10000, readTimeout: 10000,
+      responseType: 'json', connectTimeout: 10000, readTimeout: path === '/api/demo/model-server' ? 240000 : path === '/api/demo/classify' ? 35000 : 10000,
       disableRedirects: true,
     });
     return { status: result.status, data: result.data };

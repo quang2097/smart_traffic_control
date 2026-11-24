@@ -81,6 +81,7 @@ try {
   await wait(`!!document.querySelector('#auth-form')`);
   assert.equal(await evaluate(`!!document.querySelector('.connection-panel')`), true);
   await evaluate(`document.querySelector('#email').value='fixture@example.com'; document.querySelector('#password').value='fixture-password'; document.querySelector('#auth-form').requestSubmit()`);
+  await wait(`!!document.querySelector('[data-workspace=traffic-dashboard]')`);await evaluate(`document.querySelector('[data-workspace=traffic-dashboard]').click()`);
   await wait(`!!document.querySelector('.signal-color.green')`);
   const native = `window.Capacitor.Plugins.CapacitorHttp`;
   assert.equal(await evaluate(`(async () => (await ${native}.request({url:${JSON.stringify(backend + '/api/auth/me')},method:'GET'})).status)()`), 200);

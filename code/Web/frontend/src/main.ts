@@ -1,4 +1,6 @@
 import "./style.css";
+import "./ai-demo.css";
+import { mountAiDemo, stopAiDemo } from "./ai-demo";
 import { mountDashboard, stopDashboard } from "./traffic";
 import { request, mountConnection } from "./connection";
 import { mountCameraViewer, stopCameraViewer } from './cameras';
@@ -56,6 +58,7 @@ function creationFields() {
   return `<label for="name">Họ và tên</label><input id="name" name="name" autocomplete="off" required maxlength="200" placeholder="Họ tên người dùng"><label for="role">Vai trò</label><select id="role" name="role" required><option value="user">Người dùng</option><option value="admin">Quản trị viên</option></select>`;
 }
 function render() {
+  stopAiDemo();
   stopDashboard();
   stopCameraViewer();
   const changing = mode === "reset" || mode === "change";
@@ -86,10 +89,17 @@ function render() {
   root.innerHTML = `<main class="layout"><aside class="story"><a class="brand" href="/">${icon}<span>smart<span class="brand-light">traffic</span><sup>®</sup></span></a><div class="story-body"><div class="eyebrow"><span></span> DI CHUYỂN THÔNG MINH HƠN</div><h1>Nhịp đèn thông minh.<br>Giao thông<br><em>thông suốt.</em></h1><p>Giám sát nút giao, điều phối tín hiệu.<br>Một hệ thống cho những hành trình an toàn.</p><div class="signal-art" aria-hidden="true"><i></i><i></i><i></i></div></div><div class="story-foot"><span>THÔNG MINH. AN TOÀN. TIỆN LỢI.</span><span>01 — 03</span></div></aside><section class="content"><div class="top-note">ĐIỀU KHIỂN ĐÈN GIAO THÔNG <span>●</span></div><div class="form-wrap"><div class="section-tag">${mode === "account" ? "KẾT NỐI THÀNH CÔNG" : "TÀI KHOẢN CỦA BẠN"}</div><h2>${titles[mode]}</h2><p class="subtitle">${subtitles[mode]}</p><div id="feedback" role="status" aria-live="polite" tabindex="-1" hidden></div>${mode === "account" ? `<div class="account"><div class="avatar">✓</div><h3 id="account-name"></h3><p id="account-email"></p><p id="account-id"></p><span class="role">${user ? roleNames[user.role] : ""}</span><p class="account-note">Bạn đã xác thực thành công vào hệ thống Smart Traffic.</p>${user && user.role === "admin" ? `<button class="primary" id="create-user">Tạo tài khoản ${arrow}</button>` : ""}<button class="primary" id="change-password">Đổi mật khẩu ${arrow}</button><button class="primary" id="logout">Đăng xuất ${arrow}</button></div>` : `<form id="auth-form">${mode === "create" ? creationFields() : ""}${!changing && mode !== "otp" ? '<label for="email">Địa chỉ email</label><input id="email" name="email" type="email" autocomplete="username" placeholder="ban@example.com" required maxlength="254">' : ""}${mode === "forgot" ? recoveryFields() : ""}${mode === "otp" ? '<label for="code">Mã OTP qua email</label><input id="code" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" placeholder="Nhập 6 chữ số" required>' : ""}${mode !== "forgot" && mode !== "otp" ? passwordField(changing || mode === "create" ? "Mật khẩu mới" : "Mật khẩu", "password", changing || mode === "create" ? "new-password" : "current-password", changing || mode === "create" ? 12 : 1) : ""}${changing || mode === "create" ? passwordField("Xác nhận mật khẩu", "confirm", "new-password", 12) : ""}${mode === "login" ? '<div class="form-options"><label class="check"><input type="checkbox" name="remember"> Ghi nhớ đăng nhập</label><button type="button" class="text-button" id="forgot">Quên mật khẩu?</button></div>' : ""}<button class="primary" type="submit">${mode === "create" ? "Tạo tài khoản" : mode === "login" ? "Đăng nhập" : mode === "forgot" ? "Gửi mã OTP qua email" : mode === "otp" ? "Xác nhận mã OTP" : "Lưu mật khẩu mới"} ${arrow}</button>${mode !== "login" ? `<button type="button" class="back" id="back">${mode === "change" || mode === "create" ? "← Quay lại tài khoản" : "← Quay lại đăng nhập"}</button>` : ""}</form>${mode === "login" ? '<div class="help"><span class="help-icon">i</span><p>Chưa có tài khoản?<br><span>Liên hệ quản trị viên hệ thống để được cấp quyền truy cập.</span></p></div>' : ""}`}</div><footer><span>© ${new Date().getFullYear()} Smart Traffic</span><span class="secure"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1 2 3v4c0 4 6 7 6 7s6-3 6-7V3L8 1Z" stroke="currentColor"/><path d="m5 7 2 2 4-4" stroke="currentColor"/></svg> Kết nối được bảo mật</span></footer></section></main>`;
   if (user && mode === "account") {
     root.querySelector(".layout")!.classList.add("dashboard-layout");
-    root.querySelector(".account")!.insertAdjacentHTML("afterend", '<section id="traffic-dashboard" aria-label="Điều khiển giao thông"></section>');
-    mountDashboard(document.querySelector("#traffic-dashboard")!, user.role, api);
-    root.querySelector('.account')!.insertAdjacentHTML('afterend', '<section id="camera-observation" aria-label="Quan sát giao thông Hà Nội"></section>');
-    mountCameraViewer(root.querySelector('#camera-observation')!, api);
+    root.querySelector('.account')!.insertAdjacentHTML('afterend', `<nav class="workspace-nav" aria-label="Không gian làm việc"><button type="button" data-workspace="ai-workspace" aria-current="page">Video & AI demo</button><button type="button" data-workspace="traffic-dashboard">Điều khiển giao thông</button><button type="button" data-workspace="camera-observation">Camera</button></nav><section id="ai-workspace" aria-label="Video và AI demo"></section><section id="traffic-dashboard" aria-label="Điều khiển giao thông" hidden></section><section id="camera-observation" aria-label="Quan sát giao thông Hà Nội" hidden></section>`);
+    mountAiDemo(root.querySelector('#ai-workspace')!, user.role);
+    let trafficMounted = false, cameraMounted = false;
+    root.querySelectorAll<HTMLButtonElement>('[data-workspace]').forEach(button => button.onclick = () => {
+      const selected = button.dataset.workspace!;
+      if (selected !== 'ai-workspace') root.querySelector('#ai-workspace')!.dispatchEvent(new Event('demo-pause'));
+      root.querySelectorAll<HTMLButtonElement>('[data-workspace]').forEach(item => { if (item === button) item.setAttribute('aria-current', 'page'); else item.removeAttribute('aria-current'); });
+      for (const id of ['ai-workspace', 'traffic-dashboard', 'camera-observation']) (root.querySelector(`#${id}`) as HTMLElement).hidden = id !== selected;
+      if (selected === 'traffic-dashboard' && !trafficMounted) { mountDashboard(root.querySelector('#traffic-dashboard')!, user!.role, api); trafficMounted = true; }
+      if (selected === 'camera-observation' && !cameraMounted) { mountCameraViewer(root.querySelector('#camera-observation')!, api); cameraMounted = true; }
+    });
     document.querySelector("#account-name")!.textContent = user.name;
     document.querySelector("#account-email")!.textContent = user.email;
     document.querySelector("#account-id")!.textContent = `Mã tài khoản: ${user.id}`;
@@ -156,6 +166,7 @@ function render() {
       const button = event.currentTarget as HTMLButtonElement;
       button.disabled = true;
       try {
+        await stopAiDemo();
         await api("logout", {});
         user = null;
         mode = "login";

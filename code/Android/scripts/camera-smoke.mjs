@@ -59,7 +59,7 @@ try {
   assert.equal(await evaluate(`window.Capacitor.isPluginAvailable('TrafficCamera')`),true);
   assert.equal(await evaluate(`(async()=>{try{await window.Capacitor.Plugins.TrafficCamera.setBackend({base:'file:///private'});return false}catch{return true}})()`),true);
   await evaluate(`document.querySelector('#email').value=${JSON.stringify(details.email)};document.querySelector('#password').value=${JSON.stringify(details.password)};document.querySelector('#auth-form').requestSubmit()`);
-  await wait(`document.querySelector('#camera-road')?.options.length===3`);
+  await wait(`document.querySelector('[data-workspace=camera-observation]')`);await evaluate(`document.querySelector('[data-workspace=camera-observation]').click()`);await wait(`document.querySelector('#camera-road')?.options.length===3`);
   await evaluate(`document.querySelector('#camera-road').value='hanoi-demo';document.querySelector('#camera-road').dispatchEvent(new Event('change'))`);
   await wait(`document.querySelector('#camera-choice').options.length===5`);
   await choose('demo');assert.match(await evaluate(`document.querySelector('#camera-kind').textContent`),/DEMO/);

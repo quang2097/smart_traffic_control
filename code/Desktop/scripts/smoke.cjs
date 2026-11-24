@@ -65,6 +65,8 @@ app.on('browser-window-created', (_event, window) => {
       await waitFor(`document.querySelector('#forgot')`);
       console.log('PASS UC03 UI: forgot-password email flow, confirmation validation and reset');
       await window.webContents.executeJavaScript(`document.querySelector('#email').value='fixture@example.com'; document.querySelector('#password').value='fixture-password'; document.querySelector('#auth-form').requestSubmit();`);
+      await waitFor(`document.querySelector('[data-workspace=traffic-dashboard]')`);
+      await window.webContents.executeJavaScript(`document.querySelector('[data-workspace=traffic-dashboard]').click()`);
       await waitFor(`document.querySelector('.signal-color.green')`);
       console.log('PASS UC01 UI: admin login reaches authenticated dashboard');
       for (const role of ['admin', 'user']) {
@@ -90,6 +92,8 @@ app.on('browser-window-created', (_event, window) => {
       await waitFor(`document.querySelector('#forgot')`);
       console.log('PASS UC02 UI: password change requires email verification and returns to login');
       await window.webContents.executeJavaScript(`document.querySelector('#email').value='fixture@example.com'; document.querySelector('#password').value='fixture-password'; document.querySelector('#auth-form').requestSubmit()`);
+      await waitFor(`document.querySelector('[data-workspace=traffic-dashboard]')`);
+      await window.webContents.executeJavaScript(`document.querySelector('[data-workspace=traffic-dashboard]').click()`);
       await waitFor(`document.querySelector('.signal-color.green')`);
       const screenDir = path.resolve(__dirname, '../release/screenshots');
       mkdirSync(screenDir, { recursive: true });
@@ -109,6 +113,8 @@ app.on('browser-window-created', (_event, window) => {
       await waitFor(`document.querySelector('#forgot')`);
       activeUser = { ...user, role: 'user' };
       await window.webContents.executeJavaScript(`document.querySelector('#email').value='fixture@example.com'; document.querySelector('#password').value='fixture-password'; document.querySelector('#auth-form').requestSubmit()`);
+      await waitFor(`document.querySelector('[data-workspace=traffic-dashboard]')`);
+      await window.webContents.executeJavaScript(`document.querySelector('[data-workspace=traffic-dashboard]').click()`);
       await waitFor(`document.querySelector('.signal-color.green')`);
       assert.equal(await window.webContents.executeJavaScript(`!!document.querySelector('#create-user') || !!document.querySelector('[data-configure]') || Array.from(document.querySelectorAll('button')).some(button=>button.textContent==='Xử lý yêu cầu đổi mật khẩu')`), false);
       console.log('PASS UC01/UC04/UC07 UI: ordinary user sees monitoring and no admin controls');

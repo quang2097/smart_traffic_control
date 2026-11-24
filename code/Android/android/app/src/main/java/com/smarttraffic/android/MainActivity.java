@@ -15,7 +15,7 @@ public class MainActivity extends BridgeActivity {
     public void stopCameraMedia() { if (cameras != null) cameras.cancelAll(); }
     @Override public void onPause() {
         if (cameras != null) cameras.cancelAll();
-        if (getBridge() != null) getBridge().triggerWindowJSEvent("traffic-camera-paused");
+        if (getBridge() != null) { getBridge().triggerWindowJSEvent("traffic-camera-paused"); getBridge().triggerWindowJSEvent("traffic-ai-paused"); }
         super.onPause();
     }
     @Override public void onDestroy() {

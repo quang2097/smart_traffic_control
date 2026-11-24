@@ -3,8 +3,9 @@ const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { existsSync } = require('node:fs');
 const { validateRequest, assetPath } = require('./policy.cjs');
+const { videoMedia } = require('./video-media.cjs');
 const { cameraMedia } = require('./camera-media.cjs');
-protocol.registerSchemesAsPrivileged([{ scheme: 'traffic', privileges: { standard: true, secure: true, supportFetchAPI: true } }]);
+protocol.registerSchemesAsPrivileged([{ scheme: 'traffic', privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true } }]);
 let window;
 const trusted = event => {
   if (!window || event.sender !== window.webContents || event.senderFrame !== window.webContents.mainFrame || !event.senderFrame.url.startsWith('traffic://app/')) throw new Error('Untrusted request');
@@ -12,38 +13,40 @@ const trusted = event => {
 app.whenReady().then(() => {
   const apiSession = session.fromPartition('persist:smart-traffic-api');
   let backendOrigin;
+  const videos = videoMedia(apiSession, () => backendOrigin);
   const media = cameraMedia(apiSession, () => backendOrigin);
   ipcMain.handle('traffic:request', async (event, base, route, body) => {
     trusted(event);
-    const { url, payload } = validateRequest(base, route, body);
+    const { url, payload, timeout } = validateRequest(base, route, body);
     const nextOrigin = new URL(url).origin;
-    if (nextOrigin !== backendOrigin) { media.cancelAll(); backendOrigin = nextOrigin; }
+    if (nextOrigin !== backendOrigin) { media.cancelAll(); videos.cancelAll(); backendOrigin = nextOrigin; }
     const response = await apiSession.fetch(url, {
       method: payload === undefined ? 'GET' : 'POST', credentials: 'include', redirect: 'error',
       headers: payload === undefined ? {} : { 'Content-Type': 'application/json' },
-      ...(payload === undefined ? {} : { body: payload }), signal: AbortSignal.timeout(10000),
+      ...(payload === undefined ? {} : { body: payload }), signal: AbortSignal.timeout(timeout),
     });
     const data = response.status === 204 ? {} : await response.json().catch(() => ({ message: 'Máy chủ trả về phản hồi không hợp lệ.' }));
     return { status: response.status, data };
   });
   ipcMain.handle('traffic:clear-session', async event => {
     trusted(event);
-    media.cancelAll(); backendOrigin = undefined;
+    media.cancelAll(); videos.cancelAll(); backendOrigin = undefined;
     await apiSession.clearStorageData({ storages: ['cookies'] });
   });
-  ipcMain.handle('traffic:stop-camera', event => { trusted(event); media.cancelAll(); });
+  ipcMain.handle('traffic:stop-camera', event => { trusted(event); media.cancelAll(); videos.cancelAll(); });
   const root = path.resolve(__dirname, '../ui');
   protocol.handle('traffic', async request => {
     try {
       const url = new URL(request.url);
       if (url.host !== 'app') return new Response('', { status: 403 });
+      if (url.pathname.startsWith('/api/demo/videos/')) return videos.handle(request);
       if (url.pathname.startsWith('/api/cameras/')) return media.handle(request);
       let file = assetPath(root, url.pathname);
       if (url.pathname === '/' || !path.extname(file)) file = path.join(root, 'index.html');
       if (!existsSync(file)) return new Response('', { status: 404 });
       const response = await net.fetch(pathToFileURL(file).toString());
       const headers = new Headers(response.headers);
-      headers.set('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-src 'none'");
+      headers.set('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-src 'none'");
       return new Response(response.body, { status: response.status, headers });
     } catch { return new Response('', { status: 400 }); }
   });
@@ -53,10 +56,11 @@ app.whenReady().then(() => {
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     window.webContents.on('will-navigate', (event, url) => { if (!url.startsWith('traffic://app/')) event.preventDefault(); });
     window.webContents.session.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
-    window.on('minimize', () => media.cancelAll());
-    window.on('hide', () => media.cancelAll());
+    const pauseMedia = () => { media.cancelAll(); videos.cancelAll(); if (!window.webContents.isDestroyed()) window.webContents.send('traffic:pause-ai'); };
+    window.on('minimize', pauseMedia);
+    window.on('hide', pauseMedia);
     window.loadURL('traffic://app/');
-    window.on('closed', () => { media.cancelAll(); window = null; });
+    window.on('closed', () => { media.cancelAll(); videos.cancelAll(); window = null; });
   };
   Menu.setApplicationMenu(Menu.buildFromTemplate([{ label: 'Smart Traffic', submenu: [{ role: 'reload' }, { role: 'togglefullscreen' }, { type: 'separator' }, { role: 'quit' }] }, { role: 'editMenu' }]));
   createWindow();
