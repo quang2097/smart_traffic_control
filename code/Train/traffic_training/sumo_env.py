@@ -114,6 +114,7 @@ class TrafficSumoEnv(gym.Env):
         self.observation_space = spaces.Box(0, 1, shape=(len(OBSERVATION_NAMES),), dtype=np.float32)
         self.connection = None; self.directory = None; self.trace = []
         self.tls = 'center'; self.next_red_ns = True
+        self.on_tick = None  # Optional UI observer; training has no observer/pacing.
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed); self.close()
@@ -170,6 +171,8 @@ class TrafficSumoEnv(gym.Env):
             self.collisions += self.connection.simulation.getCollidingVehiclesNumber()
             halted, _, pending, _ = self._counts(); queue = sum(halted) + sum(pending)
             self.integral_queue += queue; self.max_queue = max(self.max_queue, queue)
+            if self.on_tick is not None:
+                self.on_tick(self, state, seconds - count)
         return count
 
     def step(self, action):

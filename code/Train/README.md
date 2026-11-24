@@ -55,3 +55,23 @@ Tests use a tiny generated image fixture and short SUMO simulations, not a label
 For an end-to-end notebook smoke run, use `.venv\Scripts\python.exe scripts/smoke_notebooks.py`. It executes copies of all four notebooks using random images and short simulations, saves the executed notebooks under `outputs/smoke-*`, and verifies the classifier checkpoint loads in a separate process outside the training folder. Random-image accuracy is not a traffic benchmark.
 
 References: [Ultralytics classification](https://docs.ultralytics.com/tasks/classify/), [SB3 PPO](https://stable-baselines3.readthedocs.io/en/master/modules/ppo.html), [SUMO TraCI](https://sumo.dlr.de/docs/TraCI/Interfacing_TraCI_from_Python.html), [manual traffic-light states](https://sumo.dlr.de/docs/Simulation/Traffic_Lights.html).
+
+
+## SUMO visual test bench
+
+Double-click `Launch-SUMO-UI.cmd` in this folder, then open **http://127.0.0.1:8765** in a browser. Or run:
+
+```powershell
+.venv\Scripts\python.exe scripts/launch_sumo_ui.py
+```
+
+The UI uses the existing training environment; no additional packages are needed. It binds to this computer only. To use a different port, add `--port 8766`. Ctrl+C in the launcher stops the server and its simulation.
+
+1. Choose a demand scenario, run length (10–7200 seconds), seed, and per-axis base arrival rates.
+2. Select **Fixed / manual durations** or a **Trained PPO policy**. Policies in `outputs/**/policy.zip` with a neighboring `policy_metadata.json` appear in the list. You can import those two files from another folder as well. Policy compatibility is checked when loading; errors appear in the UI.
+3. Click **Load simulation**. It starts paused after the 2-second startup clearance. Use **Play**, **Pause**, or **Step phase**. Stepping finishes the current phase and its yellow/all-red clearance, then pauses at the next decision. Speed changes wall-clock pacing, not SUMO physics or phase durations; the selected speed is a target subject to machine performance.
+4. In manual mode, change **Next phase duration** at any time. The new value is sampled at the next decision; it never changes the current locked hold. PPO chooses from the same action table automatically. Pausing freezes the simulation clock without resetting the hold.
+5. Inspect the junction, per-axis stopped queues, pending insertion backlog, countdown, queue history, completed decisions and collisions. Vehicles/signals come from actual SUMO/TraCI; the junction is a readable schematic, not a street map. At most 400 vehicles are drawn; the network count and metrics include all vehicles. No separate SUMO GUI window is needed.
+6. Export **Metrics CSV** or **Run JSON**. Exports include the full observed metric history, settings, seed and phase trace. Completed/stopped/failed runs also save JSON under `outputs/sumo-ui/runs/`. An explicit stop may interrupt a simulated phase: its final signal/countdown is saved, but only completed environment decisions appear in the trace. A horizon-cutoff decision is marked incomplete. Restart with the same scenario, seed and rates to compare a second controller on the same generated traffic; use the evaluation notebook for multi-seed aggregate comparisons.
+
+This test bench runs offline simulation only. It does not train models, send ESP32 commands, or connect the CV classifier to RL observations. The RL integration remains marked as developing. Observation/action contracts and timing behavior are shared with the training notebooks.
